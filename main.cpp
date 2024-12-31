@@ -7,8 +7,6 @@
 #include <iomanip>
 using namespace std;
 
-//bread
-
 string thousandSeparator(int n) {
     string ans = "", num = to_string(n);
     int count = 0;
