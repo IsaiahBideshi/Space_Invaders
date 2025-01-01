@@ -32,7 +32,7 @@ public:
 
 class asteroid {
 public:
-    int size = rand() % 3, health = size + 1, spawnRate = 1000;
+    int size = rand() % 3, health = size + 1;
     float x = -100, y = -100;
 
     sf::Sprite asteroidSprite;
@@ -69,7 +69,7 @@ public:
 
 class player {
 public:
-    int score=0, fireRate=300, ammo, lives=3;
+    int score=0, fireRate=300, ammo, lives=3, asteroidSpawnRate=1000;
     int x, y;
 
     bullet bullets[100];
@@ -137,7 +137,7 @@ int main(){
         window.draw(shootArea);
 
     // Asteroid Proccessing
-        if (asteroidSpawn.getElapsedTime().asMilliseconds() > asteroids[0].spawnRate) {
+        if (asteroidSpawn.getElapsedTime().asMilliseconds() > player1.asteroidSpawnRate) {
             asteroids[asteroidCount].spawn();
             asteroidCount++;
 
