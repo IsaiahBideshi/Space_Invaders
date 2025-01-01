@@ -103,8 +103,17 @@ int main(){
     player player1;
     sf::Clock cooldown, asteroidSpawn, speedTimer, scoreTimer;
     asteroid asteroids[100];
-    sf::Texture lifeSlot1Texture, lifeSlot2Texture, lifeSlot3Texture;
-    sf::Sprite lifeSlot1Sprite, lifeSlot2Sprite, lifeSlot3Sprite;
+
+    sf::Texture fullHeart, halfHeart, emptyHeart;
+    fullHeart.loadFromFile("full-heart1.png");
+    halfHeart.loadFromFile("half-heart1.png");
+    emptyHeart.loadFromFile("empty-heart1.png");
+
+    sf::Sprite lifeSlots[3];
+    for (int i=0;i<3;i++) {
+        lifeSlots[i].setTexture(fullHeart);
+        lifeSlots[i].setPosition(330 + (50 * i), 0);
+    }
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
 
@@ -128,7 +137,7 @@ int main(){
         sf::Font font;
         font.loadFromFile("arial.ttf");
         sf::Text text("Score: " + to_string(player1.score), font);
-        text.setCharacterSize(20);
+        text.setCharacterSize(30);
         text.setOutlineColor(sf::Color::Black);
         text.setOutlineThickness(2);
 
@@ -137,6 +146,9 @@ int main(){
         background.loadFromFile("background.jpg");
         window.draw(sf::Sprite(background));
         window.draw(shootArea);
+        for (int i=0;i<3;i++)
+            window.draw(lifeSlots[i]);
+
 
     // Asteroid Proccessing
         if (asteroidSpawn.getElapsedTime().asMilliseconds() > asteroids[0].spawnRate) {
@@ -158,6 +170,9 @@ int main(){
             if (asteroids[i].y > 800) {
                 asteroids[i].x = -100;
                 asteroids[i].y = -100;
+                player1.lives--;
+                if (player1.lives % 2 == 0) lifeSlots[player1.lives/2].setTexture(emptyHeart);
+                else lifeSlots[player1.lives/2].setTexture(halfHeart);
             }
         }
 
@@ -226,13 +241,20 @@ int main(){
             }
         }
 
+        if (player1.lives == 0) {
+            cout << "Game Over" << endl;
+            text.setPosition(200, 400);
+            text.setString("Game Over\nScore: " + to_string(player1.score));
+        }
+        window.draw(text);
+
+
         while (window.pollEvent(event)) {
         // Close window: exit
             if (event.type == sf::Event::Closed)
                 window.close();
         }
 
-        window.draw(text);
         window.setSize({480, 800});
 
     }
