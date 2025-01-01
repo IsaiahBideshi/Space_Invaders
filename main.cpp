@@ -1,3 +1,5 @@
+//  Ammo system shoot and reload
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -7,7 +9,6 @@ using namespace std;
 string thousandSeparator(int n) {
     string ans = "", num = to_string(n);
     int count = 0;
-
     for (int i=num.size()-1;i >= 0;i--) {
         count++;
         ans += num[i];
@@ -17,11 +18,9 @@ string thousandSeparator(int n) {
         }
     }
     reverse(ans.begin(), ans.end());
-
     if (ans.size() % 4 == 0) {
         ans.erase(ans.begin());
     }
-
     return ans;
 }
 
@@ -47,12 +46,7 @@ public:
         } else {
             asteroidTexture.loadFromFile("asteroidLarge.png");
         }
-    }
-
-    void reset() {
-        size = rand() % 3;
-        x = -100, y = -100;
-        asteroid();
+        asteroidSprite.setTexture(asteroidTexture);
     }
 
     void spawn() {
@@ -122,6 +116,11 @@ int main(){
 
         sf::Event event;
         sf::CircleShape bulletShape(4);
+        sf::RectangleShape shootArea(sf::Vector2f(480, 200));
+        shootArea.setPosition(0, 600);
+        shootArea.setFillColor(sf::Color::Transparent);
+        shootArea.setOutlineThickness(4);
+        shootArea.setOutlineColor(sf::Color::White);
 
     //  Text For Score:
         sf::Font font;
@@ -135,17 +134,16 @@ int main(){
         sf::Texture background;
         background.loadFromFile("background.jpg");
         window.draw(sf::Sprite(background));
+        window.draw(shootArea);
 
     // Asteroid Proccessing
         if (asteroidSpawn.getElapsedTime().asMilliseconds() > asteroids[0].spawnRate) {
-            for (int i=0;i<=100;i++) {
-                if (asteroids[i].x == -100 and asteroids[i].y == -100) {
-                    asteroids[i].reset();
-                    asteroids[i].spawn();
-                    asteroidCount++;
-                    break;
-                }
-            }
+            asteroids[asteroidCount].spawn();
+            asteroidCount++;
+
+            if (asteroidCount == 100)
+                asteroidCount = 0;
+
             asteroidSpawn.restart();
         }
 
@@ -217,6 +215,7 @@ int main(){
                     }
                 }
                 if (reset) {
+                    player1.score += 10;
                     player1.bullets[i].x = -100;
                     player1.bullets[i].y = -100;
                     asteroids[j].x = -100;
