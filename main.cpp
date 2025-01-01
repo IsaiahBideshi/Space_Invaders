@@ -103,6 +103,8 @@ int main(){
     player player1;
     sf::Clock cooldown, asteroidSpawn, speedTimer, scoreTimer;
     asteroid asteroids[100];
+    sf::Texture lifeSlot1Texture, lifeSlot2Texture, lifeSlot3Texture;
+    sf::Sprite lifeSlot1Sprite, lifeSlot2Sprite, lifeSlot3Sprite;
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
 
