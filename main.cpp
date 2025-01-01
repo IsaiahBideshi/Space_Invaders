@@ -69,7 +69,7 @@ public:
 
 class player {
 public:
-    int score=0, fireRate=300, ammo, lives=3;
+    int score=0, fireRate=300, ammo, lives=6;
     int x, y;
 
     bullet bullets[100];
