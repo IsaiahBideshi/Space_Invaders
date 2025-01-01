@@ -1,6 +1,3 @@
-//  BUGS:
-//  - After 3 random sized asteroids spawn the same size asteroid will spawn in a rotation
-
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
