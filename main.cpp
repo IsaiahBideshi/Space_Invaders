@@ -1,4 +1,8 @@
 //  Ammo system shoot and reload
+/*  Game over screen not working:
+ *      - Freezes and stops responding after some time
+ *      - AI says to not use a while loop for game over screen and use an if statement instead
+*/
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
