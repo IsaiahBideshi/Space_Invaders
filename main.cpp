@@ -114,10 +114,10 @@ int main(){
         lifeSlots[i].setTexture(fullHeart);
         lifeSlots[i].setPosition(330 + (50 * i), 0);
     }
-//  Text For Score:
+//  Text:
     sf::Font font;
     font.loadFromFile("arial.ttf");
-    sf::Text scoreText("",font), gameOver("Game Over!", font);
+    sf::Text scoreText("",font), gameOver("Game Over!", font), restartText("Restart", font);
     scoreText.setCharacterSize(30);
     scoreText.setOutlineColor(sf::Color::Black);
     scoreText.setOutlineThickness(2);
@@ -127,6 +127,9 @@ int main(){
     gameOver.setCharacterSize(50);
     gameOver.setOutlineColor(sf::Color::Black);
     gameOver.setOutlineThickness(2);
+
+    restartText.setColor(sf::Color::Black);
+    restartText.setCharacterSize(18);
 
     sf::RectangleShape blackBackground(sf::Vector2f(480, 800));
     blackBackground.setFillColor(sf::Color::Black);
@@ -263,15 +266,21 @@ int main(){
             scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
 
             sf::RectangleShape restartButton(sf::Vector2f(100, 30));
-            restartButton.setPosition(190 , scoreText.getPosition().y + 40);
+            restartButton.setPosition(190 , scoreText.getPosition().y + 50);
+
+            restartText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y + 4);
 
             window.draw(blackBackground);
             window.draw(scoreText);
             window.draw(gameOver);
             window.draw(restartButton);
+            window.draw(restartText);
             window.display();
 
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and
+                player1.x > restartButton.getPosition().x and player1.x < restartButton.getPosition().x + restartButton.getSize().x and
+                player1.y > restartButton.getPosition().y and player1.y < restartButton.getPosition().y + restartButton.getSize().y) {
+                
                 player1.lives = 6;
             }
         }
