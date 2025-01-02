@@ -114,6 +114,22 @@ int main(){
         lifeSlots[i].setTexture(fullHeart);
         lifeSlots[i].setPosition(330 + (50 * i), 0);
     }
+//  Text For Score:
+    sf::Font font;
+    font.loadFromFile("arial.ttf");
+    sf::Text scoreText("",font), gameOver("Game Over!", font);
+    scoreText.setCharacterSize(30);
+    scoreText.setOutlineColor(sf::Color::Black);
+    scoreText.setOutlineThickness(2);
+
+    gameOver.setStyle(sf::Text::Bold);
+    gameOver.setFillColor(sf::Color::Red);
+    gameOver.setCharacterSize(50);
+    gameOver.setOutlineColor(sf::Color::Black);
+    gameOver.setOutlineThickness(2);
+
+    sf::RectangleShape blackBackground(sf::Vector2f(480, 800));
+    blackBackground.setFillColor(sf::Color::Black);
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
 
@@ -132,14 +148,7 @@ int main(){
         shootArea.setFillColor(sf::Color::Transparent);
         shootArea.setOutlineThickness(4);
         shootArea.setOutlineColor(sf::Color::White);
-
-    //  Text For Score:
-        sf::Font font;
-        font.loadFromFile("arial.ttf");
-        sf::Text text("Score: " + to_string(player1.score), font);
-        text.setCharacterSize(30);
-        text.setOutlineColor(sf::Color::Black);
-        text.setOutlineThickness(2);
+        scoreText.setString("Score: " + to_string(player1.score));
 
     // Background Image
         sf::Texture background;
@@ -241,12 +250,32 @@ int main(){
             }
         }
 
-        if (player1.lives == 0) {
+        asteroidSpeed = 10;
+        // Game Over, Player runs out of lives.
+        while (player1.lives == 0) {
             cout << "Game Over" << endl;
-            text.setPosition(200, 400);
-            text.setString("Game Over\nScore: " + to_string(player1.score));
+            int scoreTextWidth = scoreText.getLocalBounds().width;
+            int scoreTextHeight = scoreText.getLocalBounds().height;
+            int gameOverWidth = gameOver.getLocalBounds().width;
+            int gameOverHeight = gameOver.getLocalBounds().height;
+
+            gameOver.setPosition(240 - gameOverWidth/2, 300 - gameOverHeight);
+            scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
+
+            sf::RectangleShape restartButton(sf::Vector2f(100, 30));
+            restartButton.setPosition(190 , scoreText.getPosition().y + 40);
+
+            window.draw(blackBackground);
+            window.draw(scoreText);
+            window.draw(gameOver);
+            window.draw(restartButton);
+            window.display();
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                player1.lives = 6;
+            }
         }
-        window.draw(text);
+        window.draw(scoreText);
 
 
         while (window.pollEvent(event)) {
