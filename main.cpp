@@ -184,7 +184,7 @@ int main(){
                 scoreText.setPosition(0, 0);
                 isGameOver = false;
                 player1.lives = 6;
-                }
+            }
             continue;
         }
 
