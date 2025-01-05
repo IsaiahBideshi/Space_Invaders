@@ -1,4 +1,8 @@
 //  Ammo system shoot and reload
+/*  Game over screen not working:
+ *      - Freezes and stops responding after some time
+ *      - AI says to not use a while loop for game over screen and use an if statement instead
+*/
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -135,14 +139,54 @@ int main(){
     blackBackground.setFillColor(sf::Color::Black);
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
+    bool isGameOver = false;
 
     // Start the game loop
     while (window.isOpen()){
+        window.clear();
         if (speedTimer.getElapsedTime().asSeconds() > 10) {
             asteroidSpeed++;
             speedTimer.restart();
         }
-        window.display();
+        // Game Over, Player runs out of lives.
+        if (player1.lives == 0) {
+            isGameOver = true;
+        }
+        if (isGameOver) {
+            cout << "Game Over" << endl;
+            int scoreTextWidth = scoreText.getLocalBounds().width;
+            int scoreTextHeight = scoreText.getLocalBounds().height;
+            int gameOverWidth = gameOver.getLocalBounds().width;
+            int gameOverHeight = gameOver.getLocalBounds().height;
+
+            gameOver.setPosition(240 - gameOverWidth/2, 300 - gameOverHeight);
+            scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
+
+            sf::RectangleShape restartButton(sf::Vector2f(100, 30));
+            restartButton.setPosition(190 , scoreText.getPosition().y + 50);
+
+            restartText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y + 4);
+
+            window.draw(blackBackground);
+            window.draw(scoreText);
+            window.draw(gameOver);
+            window.draw(restartButton);
+            window.draw(restartText);
+            window.display();
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and
+                player1.x > restartButton.getPosition().x and player1.x < restartButton.getPosition().x + restartButton.getSize().x and
+                player1.y > restartButton.getPosition().y and player1.y < restartButton.getPosition().y + restartButton.getSize().y) {
+
+                for (int i=0;i<3;i++)
+                    lifeSlots[i].setTexture(fullHeart);
+
+                scoreText.setPosition(0, 0);
+                isGameOver = false;
+                player1.lives = 6;
+                }
+            continue;
+        }
 
         sf::Event event;
         sf::CircleShape bulletShape(4);
@@ -254,37 +298,6 @@ int main(){
         }
 
         asteroidSpeed = 10;
-        // Game Over, Player runs out of lives.
-        while (player1.lives == 0) {
-            cout << "Game Over" << endl;
-            int scoreTextWidth = scoreText.getLocalBounds().width;
-            int scoreTextHeight = scoreText.getLocalBounds().height;
-            int gameOverWidth = gameOver.getLocalBounds().width;
-            int gameOverHeight = gameOver.getLocalBounds().height;
-
-            gameOver.setPosition(240 - gameOverWidth/2, 300 - gameOverHeight);
-            scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
-
-            sf::RectangleShape restartButton(sf::Vector2f(100, 30));
-            restartButton.setPosition(190 , scoreText.getPosition().y + 50);
-
-            restartText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y + 4);
-
-            window.draw(blackBackground);
-            window.draw(scoreText);
-            window.draw(gameOver);
-            window.draw(restartButton);
-            window.draw(restartText);
-            window.display();
-
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and
-                player1.x > restartButton.getPosition().x and player1.x < restartButton.getPosition().x + restartButton.getSize().x and
-                player1.y > restartButton.getPosition().y and player1.y < restartButton.getPosition().y + restartButton.getSize().y) {
-                
-                player1.lives = 6;
-            }
-        }
-        window.draw(scoreText);
 
 
         while (window.pollEvent(event)) {
@@ -294,6 +307,8 @@ int main(){
         }
 
         window.setSize({480, 800});
+        window.draw(scoreText);
+        window.display();
 
     }
     int score = scoreTimer.getElapsedTime().asMilliseconds();
