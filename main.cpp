@@ -137,17 +137,36 @@ int main(){
 
     sf::RectangleShape blackBackground(sf::Vector2f(480, 800));
     blackBackground.setFillColor(sf::Color::Black);
+    sf::RectangleShape restartButton(sf::Vector2f(100, 30));
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
     bool isGameOver = false;
 
     // Start the game loop
     while (window.isOpen()){
+        sf::Event event;
+
+        while (window.pollEvent(event)){
+            if (event.type == sf::Event::Closed)
+                window.close();
+            else if (isGameOver and event.type == sf::Event::MouseButtonPressed and event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                if (restartButton.getGlobalBounds().contains(mousePos.x, mousePos.y)){
+                    for (int i=0;i<3;i++)
+                        lifeSlots[i].setTexture(fullHeart);
+
+                    scoreText.setPosition(0, 0);
+                    isGameOver = false;
+                    player1.lives = 6;
+                }
+            }
+        }
         window.clear();
         if (speedTimer.getElapsedTime().asSeconds() > 10) {
             asteroidSpeed++;
             speedTimer.restart();
         }
+
         // Game Over, Player runs out of lives.
         if (player1.lives == 0) {
             isGameOver = true;
@@ -162,7 +181,6 @@ int main(){
             gameOver.setPosition(240 - gameOverWidth/2, 300 - gameOverHeight);
             scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
 
-            sf::RectangleShape restartButton(sf::Vector2f(100, 30));
             restartButton.setPosition(190 , scoreText.getPosition().y + 50);
 
             restartText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y + 4);
@@ -174,141 +192,121 @@ int main(){
             window.draw(restartText);
             window.display();
 
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and
-                player1.x > restartButton.getPosition().x and player1.x < restartButton.getPosition().x + restartButton.getSize().x and
-                player1.y > restartButton.getPosition().y and player1.y < restartButton.getPosition().y + restartButton.getSize().y) {
+        } else {
+            sf::CircleShape bulletShape(4);
+            sf::RectangleShape shootArea(sf::Vector2f(480, 200));
+            shootArea.setPosition(0, 600);
+            shootArea.setFillColor(sf::Color::Transparent);
+            shootArea.setOutlineThickness(4);
+            shootArea.setOutlineColor(sf::Color::White);
+            scoreText.setString("Score: " + to_string(player1.score));
 
-                for (int i=0;i<3;i++)
-                    lifeSlots[i].setTexture(fullHeart);
+        // Background Image
+            sf::Texture background;
+            background.loadFromFile("background.jpg");
+            window.draw(sf::Sprite(background));
+            window.draw(shootArea);
+            for (int i=0;i<3;i++)
+                window.draw(lifeSlots[i]);
 
-                scoreText.setPosition(0, 0);
-                isGameOver = false;
-                player1.lives = 6;
+
+        // Asteroid Proccessing
+            if (asteroidSpawn.getElapsedTime().asMilliseconds() > asteroids[0].spawnRate) {
+                asteroids[asteroidCount].spawn();
+                asteroidCount++;
+
+                if (asteroidCount == 100)
+                    asteroidCount = 0;
+
+                asteroidSpawn.restart();
             }
-            continue;
-        }
 
-        sf::Event event;
-        sf::CircleShape bulletShape(4);
-        sf::RectangleShape shootArea(sf::Vector2f(480, 200));
-        shootArea.setPosition(0, 600);
-        shootArea.setFillColor(sf::Color::Transparent);
-        shootArea.setOutlineThickness(4);
-        shootArea.setOutlineColor(sf::Color::White);
-        scoreText.setString("Score: " + to_string(player1.score));
-
-    // Background Image
-        sf::Texture background;
-        background.loadFromFile("background.jpg");
-        window.draw(sf::Sprite(background));
-        window.draw(shootArea);
-        for (int i=0;i<3;i++)
-            window.draw(lifeSlots[i]);
-
-
-    // Asteroid Proccessing
-        if (asteroidSpawn.getElapsedTime().asMilliseconds() > asteroids[0].spawnRate) {
-            asteroids[asteroidCount].spawn();
-            asteroidCount++;
-
-            if (asteroidCount == 100)
-                asteroidCount = 0;
-
-            asteroidSpawn.restart();
-        }
-
-        for (int i=0;i<100;i++) {
-            if (asteroids[i].y != -100 and asteroids[i].x != -100) {
-                asteroids[i].asteroidSprite.setPosition(asteroids[i].x, asteroids[i].y);
-                window.draw(asteroids[i].asteroidSprite);
-                asteroids[i].y += asteroidSpeed;
-            }
-            if (asteroids[i].y > 800) {
-                asteroids[i].x = -100;
-                asteroids[i].y = -100;
-                player1.lives--;
-                if (player1.lives % 2 == 0) lifeSlots[player1.lives/2].setTexture(emptyHeart);
-                else lifeSlots[player1.lives/2].setTexture(halfHeart);
-            }
-        }
-
-
-    //  Mouse Tracker
-        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-        player1.x = mousePosition.x, player1.y = mousePosition.y;
-        // cout << "X: " << player1.x << " Y: " << player1.y << endl;
-
-    //  Update Bullet Positions
-        for (int i = 0; i < 100; i++) {
-            if (player1.bullets[i].y < 0) {
-                player1.bullets[i].x = -100;
-                player1.bullets[i].y = -100;
-                continue;
-            }
-            player1.bullets[i].y -= 10;
-            bulletShape.setPosition(player1.bullets[i].x, player1.bullets[i].y);
-            window.draw(bulletShape);
-            cout << "Bullet: " << i+1 << " Y: " << player1.bullets[i].y << endl;
-        }
-
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            if (cooldown.getElapsedTime().asMilliseconds() > player1.fireRate) {
-                if (player1.shoot(player1.x, player1.y, bulletCount)) {
-                    bulletCount++;
-                    cout << "Bullet Fired: " << bulletCount << endl;
+            for (int i=0;i<100;i++) {
+                if (asteroids[i].y != -100 and asteroids[i].x != -100) {
+                    asteroids[i].asteroidSprite.setPosition(asteroids[i].x, asteroids[i].y);
+                    window.draw(asteroids[i].asteroidSprite);
+                    asteroids[i].y += asteroidSpeed;
                 }
-
-                cooldown.restart();
+                if (asteroids[i].y > 800) {
+                    asteroids[i].x = -100;
+                    asteroids[i].y = -100;
+                    player1.lives--;
+                    if (player1.lives % 2 == 0) lifeSlots[player1.lives/2].setTexture(emptyHeart);
+                    else lifeSlots[player1.lives/2].setTexture(halfHeart);
+                }
             }
-        }
 
-        // Collision Detection
-        for (int i=0;i<100;i++) {
-            for (int j=0;j<100;j++) {
-                bool reset = false;
-                if (asteroids[j].size == 0) {
-                    if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 20
-                        and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
 
-                        reset = true;
-                    }
-                }
-                if (asteroids[j].size == 1) {
-                    if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 30
-                        and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
+        //  Mouse Tracker
+            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+            player1.x = mousePosition.x, player1.y = mousePosition.y;
+            // cout << "X: " << player1.x << " Y: " << player1.y << endl;
 
-                        reset = true;
-                    }
-                }
-                if (asteroids[j].size == 2) {
-                    if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 50
-                        and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
-
-                        reset = true;
-                    }
-                }
-                if (reset) {
-                    player1.score += 10;
+        //  Update Bullet Positions
+            for (int i = 0; i < 100; i++) {
+                if (player1.bullets[i].y < 0) {
                     player1.bullets[i].x = -100;
                     player1.bullets[i].y = -100;
-                    asteroids[j].x = -100;
-                    asteroids[j].y = -100;
+                    continue;
+                }
+                player1.bullets[i].y -= 10;
+                bulletShape.setPosition(player1.bullets[i].x, player1.bullets[i].y);
+                window.draw(bulletShape);
+                cout << "Bullet: " << i+1 << " Y: " << player1.bullets[i].y << endl;
+            }
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                if (cooldown.getElapsedTime().asMilliseconds() > player1.fireRate) {
+                    if (player1.shoot(player1.x, player1.y, bulletCount)) {
+                        bulletCount++;
+                        cout << "Bullet Fired: " << bulletCount << endl;
+                    }
+
+                    cooldown.restart();
                 }
             }
+
+            // Collision Detection
+            for (int i=0;i<100;i++) {
+                for (int j=0;j<100;j++) {
+                    bool reset = false;
+                    if (asteroids[j].size == 0) {
+                        if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 20
+                            and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
+
+                            reset = true;
+                        }
+                    }
+                    if (asteroids[j].size == 1) {
+                        if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 30
+                            and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
+
+                            reset = true;
+                        }
+                    }
+                    if (asteroids[j].size == 2) {
+                        if (player1.bullets[i].x+10 > asteroids[j].x and player1.bullets[i].x < asteroids[j].x + 50
+                            and player1.bullets[i].y < asteroids[j].y + 27 and player1.bullets[i].y > asteroids[j].y) {
+
+                            reset = true;
+                        }
+                    }
+                    if (reset) {
+                        player1.score += 10;
+                        player1.bullets[i].x = -100;
+                        player1.bullets[i].y = -100;
+                        asteroids[j].x = -100;
+                        asteroids[j].y = -100;
+                    }
+                }
+            }
+
+            asteroidSpeed = 10;
+
+            window.setSize({480, 800});
+            window.draw(scoreText);
+            window.display();
         }
-
-        asteroidSpeed = 10;
-
-
-        while (window.pollEvent(event)) {
-        // Close window: exit
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.setSize({480, 800});
-        window.draw(scoreText);
-        window.display();
 
     }
     int score = scoreTimer.getElapsedTime().asMilliseconds();
