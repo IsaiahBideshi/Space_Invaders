@@ -152,12 +152,23 @@ int main(){
             else if (isGameOver and event.type == sf::Event::MouseButtonPressed and event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 if (restartButton.getGlobalBounds().contains(mousePos.x, mousePos.y)){
-                    for (int i=0;i<3;i++)
-                        lifeSlots[i].setTexture(fullHeart);
+                    for (int i=0;i<100;i++) {
+                        if (i<3)
+                            lifeSlots[i].setTexture(fullHeart);
+                        asteroids[i].x = -100;
+                        asteroids[i].y = -100;
+                    }
 
+                    asteroidSpeed = 1;
+                    player1.score = 0;
                     scoreText.setPosition(0, 0);
                     isGameOver = false;
                     player1.lives = 6;
+                    bulletCount = 0;
+                    asteroidCount = 0;
+                    scoreTimer.restart();
+                    speedTimer.restart();
+                    asteroidSpawn.restart();
                 }
             }
         }
@@ -174,7 +185,6 @@ int main(){
         if (isGameOver) {
             cout << "Game Over" << endl;
             int scoreTextWidth = scoreText.getLocalBounds().width;
-            int scoreTextHeight = scoreText.getLocalBounds().height;
             int gameOverWidth = gameOver.getLocalBounds().width;
             int gameOverHeight = gameOver.getLocalBounds().height;
 
@@ -300,8 +310,6 @@ int main(){
                     }
                 }
             }
-
-            asteroidSpeed = 10;
 
             window.setSize({480, 800});
             window.draw(scoreText);
