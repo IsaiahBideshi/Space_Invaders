@@ -139,7 +139,7 @@ int main(){
     blackBackground.setFillColor(sf::Color::Black);
     sf::RectangleShape restartButton(sf::Vector2f(100, 30));
 
-    int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 4;
+    int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 3;
     bool isGameOver = false;
 
     // Start the game loop
@@ -159,7 +159,7 @@ int main(){
                         asteroids[i].y = -100;
                     }
 
-                    asteroidSpeed = 1;
+                    asteroidSpeed = 3;
                     player1.score = 0;
                     scoreText.setPosition(0, 0);
                     isGameOver = false;
