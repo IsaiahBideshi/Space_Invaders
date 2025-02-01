@@ -73,7 +73,7 @@ public:
 
 class player {
 public:
-    int score=0, fireRate=300, ammo, lives=6;
+    int highScore = 10000,lastScore = 0, score=0, fireRate=300, ammo, lives=6;
     int x, y;
 
     bullet bullets[100];
@@ -121,47 +121,36 @@ int main(){
 //  Text:
     sf::Font font;
     font.loadFromFile("arial.ttf");
-    sf::Text scoreText("",font), gameOver("Game Over!", font), restartText("Restart", font);
+    sf::Text scoreText("",font), titleText("Space Invaders", font), startText("Start", font);
     scoreText.setCharacterSize(30);
     scoreText.setOutlineColor(sf::Color::Black);
     scoreText.setOutlineThickness(2);
 
-    gameOver.setStyle(sf::Text::Bold);
-    gameOver.setFillColor(sf::Color::Red);
-    gameOver.setCharacterSize(50);
-    gameOver.setOutlineColor(sf::Color::Black);
-    gameOver.setOutlineThickness(2);
 
-    restartText.setColor(sf::Color::Black);
-    restartText.setCharacterSize(18);
+    titleText.setStyle(sf::Text::Bold);
+    titleText.setFillColor(sf::Color::Red);
+    titleText.setCharacterSize(50);
+    titleText.setOutlineColor(sf::Color::Black);
+    titleText.setOutlineThickness(2);
+
+    startText.setColor(sf::Color::Black);
+    startText.setCharacterSize(25);
 
     sf::RectangleShape blackBackground(sf::Vector2f(480, 800));
     blackBackground.setFillColor(sf::Color::Black);
     sf::RectangleShape restartButton(sf::Vector2f(100, 30));
 
     int bulletCount = 0, asteroidCount = 0, asteroidSpeed = 3;
-    bool isGameOver = false;
+    bool isGameOver = true;
 
-    //    Start Screen:
     sf::Event event;
-
-    while(window.pollEvent(event)){
-        if (event.type == sf::Event::Closed)
-            window.close();
-
-        window.draw(blackBackground);
-    }
-
-    window.draw(blackBackground);
-    window.display();
-
     // Start the game loop
     while (window.isOpen()){
-
         //  Check if game is over and if the restart button is clicked then reset the game.
         while (window.pollEvent(event)){
             if (event.type == sf::Event::Closed)
                 window.close();
+
             else if (isGameOver and event.type == sf::Event::MouseButtonPressed and event.mouseButton.button == sf::Mouse::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 if (restartButton.getGlobalBounds().contains(mousePos.x, mousePos.y)){
@@ -190,29 +179,44 @@ int main(){
             asteroidSpeed++;
             speedTimer.restart();
         }
-
         // Game Over, Player runs out of lives.
         if (player1.lives == 0) {
+            player1.lastScore = player1.score;
+            if (player1.score > player1.highScore)
+                player1.highScore = player1.score;
             isGameOver = true;
         }
         if (isGameOver) {
-            cout << "Game Over" << endl;
             int scoreTextWidth = scoreText.getLocalBounds().width;
-            int gameOverWidth = gameOver.getLocalBounds().width;
-            int gameOverHeight = gameOver.getLocalBounds().height;
+            int gameOverWidth = titleText.getLocalBounds().width;
+            int gameOverHeight = titleText.getLocalBounds().height;
 
-            gameOver.setPosition(240 - gameOverWidth/2, 300 - gameOverHeight);
-            scoreText.setPosition(240 - scoreTextWidth/2, gameOver.getPosition().y + gameOverHeight + 20);
+            titleText.setPosition(240 - gameOverWidth/2, 200 - gameOverHeight);
+            scoreText.setPosition(240 - scoreTextWidth/2, titleText.getPosition().y + gameOverHeight + 20);
 
-            restartButton.setPosition(190 , scoreText.getPosition().y + 50);
+            restartButton.setPosition(200 , 350);
 
-            restartText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y + 4);
+            startText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y);
+
+            cout << "Game Over, Last Score: "<< player1.lastScore << endl;
+
+            sf::Text highScoreText("High Score: " + to_string(player1.highScore), font);
+            sf::Text lastScoreText("Last Score: " + to_string(player1.lastScore), font);
+            highScoreText.setCharacterSize(25);
+            lastScoreText.setCharacterSize(25);
+            highScoreText.setPosition(240 - highScoreText.getGlobalBounds().width/2, 250);
+            lastScoreText.setPosition(240 - lastScoreText.getGlobalBounds().width/2, 280);
+            highScoreText.setColor(sf::Color::White);
+            lastScoreText.setColor(sf::Color::White);
+
 
             window.draw(blackBackground);
-            window.draw(scoreText);
-            window.draw(gameOver);
+            // window.draw(scoreText);
+            window.draw(titleText);
             window.draw(restartButton);
-            window.draw(restartText);
+            window.draw(startText);
+            window.draw(lastScoreText);
+            window.draw(highScoreText);
             window.display();
 
             continue;
