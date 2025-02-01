@@ -198,7 +198,6 @@ int main(){
 
             startText.setPosition(restartButton.getPosition().x + 22, restartButton.getPosition().y);
 
-            cout << "Game Over, Last Score: "<< player1.lastScore << endl;
 
             sf::Text highScoreText("High Score: " + to_string(player1.highScore), font);
             sf::Text lastScoreText("Last Score: " + to_string(player1.lastScore), font);
