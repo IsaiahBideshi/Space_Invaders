@@ -146,7 +146,10 @@ int main(){
     sf::Event event;
 
     while(window.pollEvent(event)){
-        if (event.type == sf::Event::Closed);
+        if (event.type == sf::Event::Closed)
+            window.close();
+
+        window.draw(blackBackground);
     }
 
     window.draw(blackBackground);
@@ -212,8 +215,9 @@ int main(){
             window.draw(restartText);
             window.display();
 
+            continue;
         }
-        else {
+        // else {
             sf::CircleShape bulletShape(4);
             sf::RectangleShape shootArea(sf::Vector2f(480, 200));
             shootArea.setPosition(0, 600);
@@ -325,7 +329,7 @@ int main(){
             window.setSize({480, 800});
             window.draw(scoreText);
             window.display();
-        }
+        // }
 
     }
     int score = scoreTimer.getElapsedTime().asMilliseconds();
