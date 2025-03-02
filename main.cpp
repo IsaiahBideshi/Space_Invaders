@@ -1,9 +1,7 @@
 //  Ammo system shoot and reload
 
-#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <iomanip>
 using namespace std;
 
 string thousandSeparator(int n) {
