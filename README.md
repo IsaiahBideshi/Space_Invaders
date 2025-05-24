@@ -11,6 +11,7 @@ project will serve as practice of OOP for my upcoming courses to gain a headstar
 
 
 ### Disclaimer
-The demo has an incorrect high score value that will be fixed eventually
+The demo has an incorrect high score value that will be fixed eventually.
+The high score value should be stored locally.
 
 <img src='https://imgur.com/gLeRpp6.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
