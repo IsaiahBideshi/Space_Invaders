@@ -13,4 +13,4 @@ project will serve as practice of OOP for my upcoming courses to gain a headstar
 ### Disclaimer
 The demo has an incorrect high score value that will be fixed eventually
 
-<blockquote class="imgur-embed-pub" lang="en" data-id="a/gLeRpp6" data-context="false" ><a href="//imgur.com/a/gLeRpp6"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+<img src='https://imgur.com/aFlHWqL.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
