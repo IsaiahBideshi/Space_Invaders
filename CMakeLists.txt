@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.30)
 project(Space_Invaders)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
+
 # Path to SFML
-set(SFML_DIR "C:/Users/isaia/CLionProjects/Space Invaders/SFML-2.6.2/lib/cmake/SFML")
+set(SFML_DIR "C:/Users/isaia/CLionProjects/Space_Invaders/SFML-2.6.2/lib/cmake/SFML")
 
 # Find SFML
-find_package(SFML 2.6 COMPONENTS system window graphics network audio REQUIRED)
+find_package(SFML 2.6.2 COMPONENTS system window graphics network audio REQUIRED)
 
 add_executable(Space_Invaders main.cpp)
 
