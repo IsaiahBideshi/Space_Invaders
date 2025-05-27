@@ -2,6 +2,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cstdlib>
+#include <filesystem>
+#include <windows.h>
+#include <fstream>
 using namespace std;
 
 string thousandSeparator(int n) {
@@ -38,11 +42,11 @@ public:
 
     asteroid() {
         if (size == 0) {
-            asteroidTexture.loadFromFile("asteroidSmall.png");
+            asteroidTexture.loadFromFile("assets/asteroidSmall.png");
         } else if (size == 1) {
-            asteroidTexture.loadFromFile("asteroidMedium.png");
+            asteroidTexture.loadFromFile("assets/asteroidMedium.png");
         } else {
-            asteroidTexture.loadFromFile("asteroidLarge.png");
+            asteroidTexture.loadFromFile("assets/asteroidLarge.png");
         }
         asteroidSprite.setTexture(asteroidTexture);
     }
@@ -67,7 +71,7 @@ public:
 
 class player {
 public:
-    int highScore = 10000,lastScore = 0, score=0, fireRate=300, ammo, lives=6;
+    int highScore = 0, lastScore = 0, score=0, fireRate=300, ammo, lives=6;
     int x, y;
 
     bullet bullets[100];
@@ -94,21 +98,63 @@ public:
 
         return true;
     }
+
+    void getHighScore() {
+        string highScorePath = getenv("APPDATA");
+        highScorePath += "\\Space Invaders\\highscore.txt";
+
+        if (!filesystem::exists(highScorePath)) {
+            cout << "Highscore file !exists." << endl;
+        }
+
+        ifstream file(highScorePath);
+
+
+        int localHighScore;
+        if (file.is_open()) {
+            file >> localHighScore;
+            highScore = localHighScore;
+            if (highScore < 0)
+                highScore = 0;
+
+            file.close();
+        } else {
+            cout << "Error opening highscore file." << endl;
+            filesystem::create_directory(getenv("APPDATA") + string("\\Space Invaders")); // Create directory if it doesn't exist
+        }
+    }
+
+    void saveHighScore() {
+        string highScorePath = getenv("APPDATA");
+        highScorePath += "\\Space Invaders\\highscore.txt";
+        ofstream file(highScorePath);
+
+        if (file.is_open()) {
+            file << highScore;
+            file.close();
+        } else {
+            cout << "Error saving highscore." << endl;
+        }
+    }
+
 };
 
 int main(){
     int bulletCount = 0, asteroidIndex = 0, asteroidSpeed = 3, MAX_ASTEROIDS = 500, asteroidSpawnRate = 1000;
-    bool isGameOver = true, godMode = true;
+    bool isGameOver = true, godMode = false;
 
     sf::RenderWindow window(sf::VideoMode(480 , 800), "Space Invaders");
+    window.setFramerateLimit(60);
     player player1;
+    player1.getHighScore();
+
     sf::Clock cooldown, asteroidSpawn, speedTimer, overallTimer;
     asteroid asteroids[MAX_ASTEROIDS];
 
     sf::Texture fullHeart, halfHeart, emptyHeart;
-    fullHeart.loadFromFile("full-heart1.png");
-    halfHeart.loadFromFile("half-heart1.png");
-    emptyHeart.loadFromFile("empty-heart1.png");
+    fullHeart.loadFromFile("assets/full-heart1.png");
+    halfHeart.loadFromFile("assets/half-heart1.png");
+    emptyHeart.loadFromFile("assets/empty-heart1.png");
 
     sf::Sprite lifeSlots[3];
     for (int i=0;i<3;i++) {
@@ -118,7 +164,7 @@ int main(){
     }
 //  Text:
     sf::Font font;
-    font.loadFromFile("arial.ttf");
+    font.loadFromFile("assets/arial.ttf");
     sf::Text scoreText("",font), titleText("Space Invaders", font), startText("Start", font), timerText("", font);
     scoreText.setCharacterSize(30);
     scoreText.setOutlineColor(sf::Color::Black);
@@ -135,7 +181,7 @@ int main(){
     titleText.setOutlineColor(sf::Color::Black);
     titleText.setOutlineThickness(2);
 
-    startText.setColor(sf::Color::Black);
+    startText.setFillColor(sf::Color::Black);
     startText.setCharacterSize(25);
 
     sf::RectangleShape blackBackground(sf::Vector2f(480, 800));
@@ -168,6 +214,7 @@ int main(){
                     player1.lives = 6;
                     bulletCount = 0;
                     asteroidIndex = 0;
+                    asteroidSpawnRate = 1000;
                     overallTimer.restart();
                     speedTimer.restart();
                     asteroidSpawn.restart();
@@ -208,12 +255,11 @@ int main(){
             lastScoreText.setCharacterSize(25);
             highScoreText.setPosition(240 - highScoreText.getGlobalBounds().width/2, 250);
             lastScoreText.setPosition(240 - lastScoreText.getGlobalBounds().width/2, 280);
-            highScoreText.setColor(sf::Color::White);
-            lastScoreText.setColor(sf::Color::White);
+            highScoreText.setFillColor(sf::Color::White);
+            lastScoreText.setFillColor(sf::Color::White);
 
 
             window.draw(blackBackground);
-            // window.draw(scoreText);
             window.draw(titleText);
             window.draw(restartButton);
             window.draw(startText);
@@ -223,6 +269,7 @@ int main(){
 
             continue;
         }
+
         sf::CircleShape bulletShape(4);
         sf::RectangleShape shootArea(sf::Vector2f(480, 200));
         shootArea.setPosition(0, 600);
@@ -236,7 +283,7 @@ int main(){
 
         // Background Image
         sf::Texture background;
-        background.loadFromFile("background.jpg");
+        background.loadFromFile("assets/background.jpg");
         window.draw(sf::Sprite(background));
         window.draw(shootArea);
         for (int i=0;i<3;i++)
@@ -269,7 +316,6 @@ int main(){
 
             asteroids[asteroidIndex].spawn();
             asteroidIndex++;
-            // cout << asteroidIndex << endl;
 
             if (asteroidIndex >= MAX_ASTEROIDS) {
                 cout << "Reset AsteroidIndex" << endl;
@@ -305,7 +351,6 @@ int main(){
         player1.bullets[7].x = -100;    //  For some reason bullet 7's x coord gets changed to a random number, so I reset it here
 
         for (int i = 0; i < 100; i++) {
-
             if (player1.bullets[i].x != -100 and player1.bullets[i].y != -100) {
                 if (player1.bullets[i].y < 0) {
                     player1.bullets[i].x = -100;
@@ -315,7 +360,7 @@ int main(){
                 player1.bullets[i].y -= 10;
                 bulletShape.setPosition(player1.bullets[i].x, player1.bullets[i].y);
                 window.draw(bulletShape);
-                cout << "Bullet: " << i+1 << " (" << player1.bullets[i].x << ", " << player1.bullets[i].y << ")" <<  endl;
+                // cout << "Bullet: " << i+1 << " (" << player1.bullets[i].x << ", " << player1.bullets[i].y << ")" <<  endl;
             }
         }
 
@@ -323,7 +368,7 @@ int main(){
             if (cooldown.getElapsedTime().asMilliseconds() > player1.fireRate) {
                 if (player1.shoot(player1.x, player1.y, bulletCount)) {
                     bulletCount++;
-                    cout << "Bullet Fired: " << bulletCount << endl;
+                    // cout << "Bullet Fired: " << bulletCount << endl;
                 }
 
                 cooldown.restart();
@@ -331,7 +376,7 @@ int main(){
         }
 
         // Collision Detection
-            for (int i=0;i<100;i++) {
+        for (int i=0;i<100;i++) {
             for (int j=0;j<MAX_ASTEROIDS;j++) {
                 bool reset = false;
                 if (asteroids[j].size == 0) {
@@ -375,7 +420,9 @@ int main(){
         window.display();
 
     }
-    cout << endl << "Bullets Fired: " << bulletCount << endl;
+    // cout << endl << "Bullets Fired: " << bulletCount << endl;
+
+    player1.saveHighScore();
 
     return EXIT_SUCCESS;
 }
