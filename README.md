@@ -1,7 +1,6 @@
 ## Installation
 
-I have not created a release of the game, so to install you need to download all the files, compile and run in c++ to play. <br>
-A release is coming soon!
+Just download and extract the zip file in the releases tab and run the exe file. Player scores are stored locally on your computer.
 
 ### More Info
 
