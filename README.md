@@ -9,8 +9,4 @@ in this case it was SMFL. As of creating this game, I am a year 1 Computer Scien
 project will serve as practice of OOP for my upcoming courses to gain a headstart.
 
 
-### Disclaimer
-The demo has an incorrect high score value that will be fixed eventually.
-The high score value should be stored locally.
-
 <img src='https://imgur.com/gLeRpp6.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
